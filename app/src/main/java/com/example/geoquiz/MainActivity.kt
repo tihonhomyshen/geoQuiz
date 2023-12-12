@@ -1,11 +1,12 @@
 package com.example.geoquiz
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import kotlin.math.roundToInt
 
 private const val TAG = "MainActivity"
@@ -13,14 +14,14 @@ private const val KEY_INDEX = "index"
 
 class MainActivity : AppCompatActivity() {
     private val quizViewModel: QuizViewModel by lazy {
-       ViewModelProviders.of(this).get(QuizViewModel::class.java)
+       ViewModelProvider(this)[QuizViewModel::class.java]
     }
-
 
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
     private lateinit var nextButton: Button
     private lateinit var backButton: Button
+    private lateinit var clueButton: Button
     private lateinit var questionTextView: TextView
 
     private val questionBank = listOf(
@@ -32,8 +33,6 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_asia, true)
     )
 
-    private var currentIndex = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
@@ -42,31 +41,42 @@ class MainActivity : AppCompatActivity() {
         val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
         quizViewModel.currentIndex = currentIndex
 
-
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         backButton = findViewById(R.id.back_button)
+        clueButton = findViewById(R.id.clue_button)
+
         questionTextView = findViewById(R.id.question_text_view)
 
-        trueButton.setOnClickListener { view: View ->
+        trueButton.setOnClickListener {
             checkAnswer(true)
         }
 
-        falseButton.setOnClickListener { view: View ->
+        falseButton.setOnClickListener {
             checkAnswer(false)
         }
 
         nextButton.setOnClickListener {
             quizViewModel.moveToNext()
+            arrowHandler()
             updateQuestion()
+            quizViewModel.alreadyAnswered = false
+
         }
 
         backButton.setOnClickListener {
             quizViewModel.moveToPrevious()
+            arrowHandler()
             updateQuestion()
         }
 
+        clueButton.setOnClickListener{
+            val intent = Intent(this@MainActivity, ClueActivity::class.java)
+            startActivity(intent)
+        }
+
+        arrowHandler()
         updateQuestion()
     }
 
@@ -93,9 +103,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
-        if (userAnswer == correctAnswer){
+        if (userAnswer == correctAnswer && !quizViewModel.alreadyAnswered){
             quizViewModel.correctCount++
         }
+
         val messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
         } else {
@@ -104,11 +115,14 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT)
             .show()
 
+        quizViewModel.alreadyAnswered = true
+
         if (quizViewModel.currentIndex == questionBank.size - 1){
             val counter = quizViewModel.correctCount
             val percent = ((counter.toDouble() / questionBank.size.toDouble()) * 100).roundToInt()
             Toast.makeText(this, "Количество правильных ответов: $counter, процент: $percent %", Toast.LENGTH_SHORT)
                 .show()
+            clueButton.isEnabled = false
         }
     }
 
@@ -122,5 +136,9 @@ class MainActivity : AppCompatActivity() {
         savedInstanceState.putInt(KEY_INDEX, quizViewModel.currentIndex)
     }
 
+    private fun arrowHandler(){
+        backButton.isEnabled = quizViewModel.currentIndex != 0
+        nextButton.isEnabled = quizViewModel.currentIndex != questionBank.size - 1
+    }
 
 }

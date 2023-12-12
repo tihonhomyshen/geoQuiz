@@ -13,17 +13,18 @@
         android:orientation="vertical">
 
         <TextView
-        android:id="@+id/question_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="24dp"
-        android:gravity="center"
-        tools:text="@string/question_australia" />
+            android:id="@+id/question_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_semibold"
+            android:gravity="center"
+            android:padding="24dp"
+            android:textSize="16sp"
+            tools:text="@string/question_australia" />
 
         <LinearLayout android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <Button
                 android:id="@+id/back_button"
                 android:layout_width="48dp"
@@ -47,8 +48,12 @@
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
                 android:drawableEnd="@drawable/arrow_right"/>
-
         </LinearLayout>
+        <Button
+            android:id="@+id/clue_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/clue_button"/>
     </LinearLayout>
 
 
