@@ -11,6 +11,11 @@
     <string name="question_africa">Исток реки Нил находится в Египте</string>
     <string name="question_americas">Река Амазонка - самая протяжённая река в Америке</string>
     <string name="question_asia">Озеро Байкал - старейшее и глубочайшее пресное озеро в мире</string>
+    <string name="question_usa">США состоит из 50 штатов</string>
+    <string name="question_sweden">Столица Швеции - Хельсинки</string>
+    <string name="question_newZealand">Столица Новой Зеландии - Веллингтон</string>
+    <string name="question_mountain">Самая высокая гора в России - Дыхтау</string>
+
 
     <string name="clue_sure_text">Вы уверены, что хотите сделать это?</string>
     <string name="clue_answer_button">Подсмотреть ответ</string>

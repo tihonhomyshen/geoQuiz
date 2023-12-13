@@ -22,7 +22,11 @@ class QuizViewModel : ViewModel() {
         Question(R.string.question_mideast, false),
         Question(R.string.question_africa, false),
         Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true)
+        Question(R.string.question_asia, true),
+        Question(R.string.question_usa, true),
+        Question(R.string.question_sweden, false),
+        Question(R.string.question_newZealand, true),
+        Question(R.string.question_mountain, false)
     )
     val currentQuestionAnswer: Boolean
         get() = questionBank[currentIndex].answer
@@ -38,10 +42,6 @@ class QuizViewModel : ViewModel() {
         if (currentIndex > 0) {
             currentIndex -= 1
         }
-    }
-
-    fun quizResult(){
-
     }
 
 }

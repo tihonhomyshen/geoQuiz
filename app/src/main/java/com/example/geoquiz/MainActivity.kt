@@ -3,6 +3,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,10 +20,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
-    private lateinit var nextButton: Button
-    private lateinit var backButton: Button
+    private lateinit var nextButton: ImageView
+    private lateinit var backButton: ImageView
     private lateinit var clueButton: Button
     private lateinit var questionTextView: TextView
+    private lateinit var questionImageView: ImageView
 
     private val questionBank = listOf(
         Question(R.string.question_australia, true),
@@ -30,7 +32,11 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_mideast, false),
         Question(R.string.question_africa, false),
         Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true)
+        Question(R.string.question_asia, true),
+        Question(R.string.question_usa, true),
+        Question(R.string.question_sweden, false),
+        Question(R.string.question_newZealand, true),
+        Question(R.string.question_mountain, false),
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         backButton = findViewById(R.id.back_button)
         clueButton = findViewById(R.id.clue_button)
 
+        questionImageView = findViewById(R.id.image_question)
         questionTextView = findViewById(R.id.question_text_view)
 
         trueButton.setOnClickListener {
@@ -59,8 +66,9 @@ class MainActivity : AppCompatActivity() {
 
         nextButton.setOnClickListener {
             quizViewModel.moveToNext()
-            arrowHandler()
             updateQuestion()
+            arrowHandler()
+            ImageHandler()
             quizViewModel.alreadyAnswered = false
 
         }
@@ -69,6 +77,7 @@ class MainActivity : AppCompatActivity() {
             quizViewModel.moveToPrevious()
             arrowHandler()
             updateQuestion()
+            ImageHandler()
         }
 
         clueButton.setOnClickListener{
@@ -77,6 +86,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         arrowHandler()
+        ImageHandler()
         updateQuestion()
     }
 
@@ -137,8 +147,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun arrowHandler(){
-        backButton.isEnabled = quizViewModel.currentIndex != 0
-        nextButton.isEnabled = quizViewModel.currentIndex != questionBank.size - 1
+        val backgrounds = listOf(
+            R.drawable.roundcornerpurple,
+            R.drawable.roundcornergray,
+        )
+        if (quizViewModel.currentIndex > 0) backButton.background = getDrawable(backgrounds[0])
+        else backButton.background = getDrawable(backgrounds[1])
     }
 
+    private fun ImageHandler(){
+        val images = listOf(
+            R.drawable.image_1,
+            R.drawable.image_2,
+            R.drawable.image_3,
+            R.drawable.image_4,
+            R.drawable.image_5,
+            R.drawable.image_6,
+            R.drawable.image_7,
+            R.drawable.image_8,
+            R.drawable.image_9,
+            R.drawable.image_10,
+        )
+        questionImageView.setImageResource(images[quizViewModel.currentIndex])
+    }
 }
