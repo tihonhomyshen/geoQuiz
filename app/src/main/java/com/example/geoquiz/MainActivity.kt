@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
 
         clueButton.setOnClickListener{
             val intent = Intent(this@MainActivity, ClueActivity::class.java)
+            intent.putExtra("answer", quizViewModel.currentQuestionAnswer)
             startActivity(intent)
         }
 
@@ -153,6 +154,10 @@ class MainActivity : AppCompatActivity() {
         )
         if (quizViewModel.currentIndex > 0) backButton.background = getDrawable(backgrounds[0])
         else backButton.background = getDrawable(backgrounds[1])
+
+        if (quizViewModel.currentIndex == questionBank.size - 1) nextButton.background = getDrawable(backgrounds[1])
+        else nextButton.background = getDrawable(backgrounds[0])
+
     }
 
     private fun ImageHandler(){

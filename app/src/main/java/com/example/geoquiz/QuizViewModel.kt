@@ -40,7 +40,7 @@ class QuizViewModel : ViewModel() {
     }
     fun moveToPrevious(){
         if (currentIndex > 0) {
-            currentIndex -= 1
+            currentIndex --
         }
     }
 

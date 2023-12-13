@@ -1,5 +1,6 @@
 package com.example.geoquiz
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -27,12 +28,14 @@ class ClueActivity: AppCompatActivity() {
         Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_clue)
 
+        val answer = intent.getBooleanExtra("answer", true)
+
         sureAnswerTextView = findViewById(R.id.clue_sure_text)
         showAnswerButton = findViewById(R.id.clue_answer_button)
         answerTextView = findViewById(R.id.clue_answer)
 
         showAnswerButton.setOnClickListener{
-            if (quizViewModel.currentQuestionAnswer) answerTextView.text = "Правда"
+            if (answer) answerTextView.text = "Правда"
             else answerTextView.text = "Ложь"
         }
 
