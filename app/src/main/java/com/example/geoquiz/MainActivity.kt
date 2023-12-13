@@ -1,18 +1,30 @@
 package com.example.geoquiz
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import kotlin.math.roundToInt
 
 private const val TAG = "MainActivity"
+private const val KEY_INDEX = "index"
 
 class MainActivity : AppCompatActivity() {
+    private val quizViewModel: QuizViewModel by lazy {
+       ViewModelProvider(this)[QuizViewModel::class.java]
+    }
+
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
-    private lateinit var nextButton: Button
-    private lateinit var backButton: Button
+    private lateinit var nextButton: ImageView
+    private lateinit var backButton: ImageView
+    private lateinit var clueButton: Button
     private lateinit var questionTextView: TextView
+    private lateinit var questionImageView: ImageView
 
     private val questionBank = listOf(
         Question(R.string.question_australia, true),
@@ -20,42 +32,61 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_mideast, false),
         Question(R.string.question_africa, false),
         Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true)
+        Question(R.string.question_asia, true),
+        Question(R.string.question_usa, true),
+        Question(R.string.question_sweden, false),
+        Question(R.string.question_newZealand, true),
+        Question(R.string.question_mountain, false),
     )
-
-    private var currentIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
 
+        val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
+        quizViewModel.currentIndex = currentIndex
 
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         backButton = findViewById(R.id.back_button)
+        clueButton = findViewById(R.id.clue_button)
+
+        questionImageView = findViewById(R.id.image_question)
         questionTextView = findViewById(R.id.question_text_view)
 
-        trueButton.setOnClickListener { view: View ->
+        trueButton.setOnClickListener {
             checkAnswer(true)
         }
 
-        falseButton.setOnClickListener { view: View ->
+        falseButton.setOnClickListener {
             checkAnswer(false)
         }
 
         nextButton.setOnClickListener {
-            currentIndex = (currentIndex + 1) % questionBank.size
+            quizViewModel.moveToNext()
             updateQuestion()
+            arrowHandler()
+            ImageHandler()
+            quizViewModel.alreadyAnswered = false
+
         }
 
         backButton.setOnClickListener {
-            currentIndex = (currentIndex - 1) % questionBank.size
-            if (currentIndex < 0) currentIndex = questionBank.size - 1
+            quizViewModel.moveToPrevious()
+            arrowHandler()
             updateQuestion()
+            ImageHandler()
         }
 
+        clueButton.setOnClickListener{
+            val intent = Intent(this@MainActivity, ClueActivity::class.java)
+            startActivity(intent)
+        }
+
+        arrowHandler()
+        ImageHandler()
         updateQuestion()
     }
 
@@ -80,23 +111,63 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy() called")
     }
 
-
-
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
+        if (userAnswer == correctAnswer && !quizViewModel.alreadyAnswered){
+            quizViewModel.correctCount++
+        }
+
         val messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
-        } else { R.string.incorrect_toast }
+        } else {
+            R.string.incorrect_toast
+        }
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT)
             .show()
-    }
 
+        quizViewModel.alreadyAnswered = true
+
+        if (quizViewModel.currentIndex == questionBank.size - 1){
+            val counter = quizViewModel.correctCount
+            val percent = ((counter.toDouble() / questionBank.size.toDouble()) * 100).roundToInt()
+            Toast.makeText(this, "Количество правильных ответов: $counter, процент: $percent %", Toast.LENGTH_SHORT)
+                .show()
+            clueButton.isEnabled = false
+        }
+    }
 
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
     }
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+        Log.i(TAG, "onSaveInstanceState")
+        savedInstanceState.putInt(KEY_INDEX, quizViewModel.currentIndex)
+    }
 
+    private fun arrowHandler(){
+        val backgrounds = listOf(
+            R.drawable.roundcornerpurple,
+            R.drawable.roundcornergray,
+        )
+        if (quizViewModel.currentIndex > 0) backButton.background = getDrawable(backgrounds[0])
+        else backButton.background = getDrawable(backgrounds[1])
+    }
 
-
+    private fun ImageHandler(){
+        val images = listOf(
+            R.drawable.image_1,
+            R.drawable.image_2,
+            R.drawable.image_3,
+            R.drawable.image_4,
+            R.drawable.image_5,
+            R.drawable.image_6,
+            R.drawable.image_7,
+            R.drawable.image_8,
+            R.drawable.image_9,
+            R.drawable.image_10,
+        )
+        questionImageView.setImageResource(images[quizViewModel.currentIndex])
+    }
 }
